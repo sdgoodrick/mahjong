@@ -19,6 +19,8 @@ using Point = tuple<T, T>;
 
 SDL_Renderer* ren;
 Texture spritesheet;
+const float z_offset_x = 3.0f; // Shift left
+const float z_offset_y = 3.0f; // Shift up
 
 bool check_open(Layer<Tile*> layer, size_t x, size_t y);
 
@@ -62,7 +64,7 @@ int main(int argc, char* argv[]) {
   random_device rd;
   mt19937 g(rd());
   ranges::shuffle(deck, g);
-  Board board(deck);
+  Board board("../layouts/turtle", deck);
 
   while (!quit) {
     SDL_SetRenderDrawColor(ren, 34, 139, 34, 255); // Set render draw color to muted green
@@ -97,7 +99,7 @@ int main(int argc, char* argv[]) {
 }
 
 bool load_media(SDL_Renderer* ren) {
-  if (!spritesheet.load_from_file(ren, "../assets/Assets/deck_mahjong_light_1.png")) {
+  if (!spritesheet.load_from_file(ren, "../assets/deck.png")) {
     return false;
   };
 
@@ -118,8 +120,11 @@ std::vector<Tile> create_deck() {
   std::vector<Tile> deck;
   deck.reserve(144);
 
-  auto get_sprite = [](int col, int row) -> SDL_FRect {
-    return { 10.0f + (col * 64.0f), 2.0f + (row * 64.0f), 44.0f, 60.0f };
+  const float visual_w = 47.0f;
+  const float visual_h = 63.0f;
+
+  auto get_sprite = [=](int col, int row) -> SDL_FRect {
+    return { 10.0f + (col * 64.0f), 2.0f + (row * 64.0f), visual_w, visual_h };
   };
 
   for (auto val = 1; val <= 9; ++val) {
@@ -223,11 +228,19 @@ void render_selection(SDL_Renderer* ren, const Board& board, bool& selection_dra
       for (int x = 0; x < board.tiles[z][y].size(); ++x) {
 	if (board.tiles[z][y][x] == board.selected_tile) {
 	  const auto [origin_x, origin_y] = get_origin(board.tiles[z], x, y);
+	 
 	  if (!selection_drawn) {
 	    auto w = board.tile_width();
 	    auto h = board.tile_height();
+
+	    auto draw_x = origin_x * (w / 2);
+	    auto draw_y = origin_y * (h / 2);
+
+	    draw_x -= (z * z_offset_x);
+	    draw_y -= (z * z_offset_y);
+
 	    SDL_SetRenderDrawColor(ren, 70, 130, 180, 255); 
-	    SDL_FRect selection = {origin_x * (w / 2), origin_y * (h / 2), w, h};
+	    SDL_FRect selection = {draw_x, draw_y, w, h};
 	    draw_rect(ren, &selection, 3.0f);
 	    selection_drawn = true;
 	  }
@@ -245,8 +258,8 @@ void draw_tiles(SDL_Renderer* ren, const Board& board) {
 	Tile* t = board.tiles[z][y][x];
 	if (t != nullptr && !seen.contains(t)) {
 	  seen.insert(t);
-	  auto real_x = x * (board.tile_width() / 2);
-	  auto real_y = y * (board.tile_height() / 2);
+	  auto real_x = x * (board.tile_width() / 2) - (z * z_offset_x);
+	  auto real_y = y * (board.tile_height() / 2) - (z * z_offset_y);
 	  render(spritesheet, real_x, real_y, &t->sprite);
 	}
       }
@@ -273,7 +286,11 @@ void handle_click(Board& board, Point<float> mouse) {
   Tile* found_tile = nullptr;
   Layer<Tile*> found_layer;
   
-  for (auto layer : ranges::reverse_view(board.tiles)) {
+  for (int z = board.tiles.size() - 1; z >= 0; --z) {
+    // Adjust mouse coordinates to accomodate Z offset
+    x = static_cast<size_t>(mouse_x + (z * z_offset_x)) / (board.tile_width() / 2);
+    y = static_cast<size_t>(mouse_y + (z * z_offset_y)) / (board.tile_height() / 2);;
+    auto layer = board.tiles[z];
     if (y < layer.size() && x < layer[0].size()) {
       if (layer[y][x]) {
 	found_tile = layer[y][x];
