@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "game.h"
 #include "graphics.h"
 
@@ -7,6 +9,7 @@ int main(int argc, char* argv[]) {
     return 1;
 
   Game game(graphics);
+  game.update_matches();
 
   SDL_Event e;
   bool quit = false;
@@ -16,6 +19,7 @@ int main(int argc, char* argv[]) {
     graphics.clear();
 
     game.draw_tiles();
+    std::cout << "\rmatches left: " << game.count_matches() << "\033[K" << std::flush;
     game.draw_selection();
 
     while (SDL_PollEvent(&e)) {
@@ -30,6 +34,8 @@ int main(int argc, char* argv[]) {
 	  game.handle_undo();
 	else if (e.key.mod & SDL_KMOD_CTRL && e.key.scancode == SDL_SCANCODE_Y)
 	  game.handle_redo();
+	else if (e.key.scancode == SDL_SCANCODE_H);
+	  // game.handle_hint();
       }
     }
 	

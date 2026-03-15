@@ -105,9 +105,9 @@ void Game::handle_click(Point<float> click) {
     auto a_pos = *clicked_tile;
     auto b_pos = *board.selected;
     history.record(a_pos, board.tile(a_pos), b_pos, board.tile(b_pos));
-
     board.remove_tile(*clicked_tile);
     board.remove_tile(*board.selected);
+    update_matches();
     board.selected = nullopt;
     return;
   }
@@ -123,6 +123,7 @@ void Game::handle_undo() {
   const auto [l, r] = *point;
   board.restore_tile(l.second, l.first);
   board.restore_tile(r.second, r.first);
+  update_matches();
 
   board.selected = nullopt;
 }
@@ -135,6 +136,36 @@ void Game::handle_redo() {
   const auto [l, r] = *point;
   board.remove_tile(l.first);
   board.remove_tile(r.first);
+  update_matches();
 
   board.selected = nullopt;
+}
+
+void Game::update_matches() {
+  available_matches.clear();
+  vector<Position> open_tiles;
+
+  for (size_t z = 0; z < board.layers(); ++z) {
+    for (size_t y = 0; y < board.length(); ++y) {
+      for (size_t x = 0; x < board.width(); ++x) {
+	Position current{x, y, z};
+	Tile* t = board.tile(current);
+	if (t == nullptr)
+	  continue;
+
+	const auto origin = board.get_origin(current);
+	if (origin.x == current.x && origin.y == current.y && board.check_open(origin))
+	    open_tiles.push_back(origin);
+      }
+    }
+  }
+
+  for (size_t i = 0; i < open_tiles.size(); ++i) {
+    for (size_t j = i + 1; j < open_tiles.size(); ++j) {
+      Tile* t = board.tile(open_tiles[i]);
+      Tile* u = board.tile(open_tiles[j]);
+      if (t != u && *t == *u)
+	available_matches.emplace_back(open_tiles[i], t, open_tiles[j], u);
+    }
+  }
 }

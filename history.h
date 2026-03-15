@@ -12,6 +12,9 @@ struct Match {
   Match(Position, Tile*, Position, Tile*);
   std::pair<Position, Tile*> a;
   std::pair<Position, Tile*> b;
+
+  inline bool operator==(const Match& rhs) const = default;
+  auto operator<=>(const Match& rhs) const = default;
 };
 
 struct History {

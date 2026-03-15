@@ -11,4 +11,5 @@ struct Position {
   std::size_t z;
 
   bool operator==(const Position& rhs) const = default;
+  auto operator<=>(const Position& rhs) const = default;
 };

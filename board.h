@@ -11,9 +11,6 @@
 template<typename T>
 using TileSet = std::array<std::array<std::array<T, 32>, 17>, 5>;
 
-template<typename T>
-using Layer = std::array<std::array<T, 32>, 17>;
-
 /// Represents the stack of tiles.
 struct Board {
   Board() = default;
@@ -40,9 +37,9 @@ struct Board {
   // indexed in `tiles` at `tiles[layer][y / (tile_h / 2)][x / (tile_w / 2)]`.
   // `tiles[z][y][x]` is the top left corner, `tiles[z][y+1][x+1]` is
   // the bottom right corner.
-  TileSet<Tile*> tiles = {};
   std::optional<Position> selected = std::nullopt;
 
 private:
+  TileSet<Tile*> tiles = {};
   void parse_layout(std::string path, std::vector<Tile>& deck);
 };

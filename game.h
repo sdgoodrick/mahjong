@@ -20,6 +20,11 @@ struct Game {
   void handle_click(Point<float> click);
   void handle_undo();
   void handle_redo();
+
+  void update_matches();
+  std::size_t count_matches() {
+    return available_matches.size();
+  }
 private:
   void create_deck();
 
@@ -27,4 +32,7 @@ private:
   Deck deck;
   History history;
   Graphics& graphics;
+
+  std::vector<Match> available_matches;
+  std::size_t hint_cursor = 0;
 };
