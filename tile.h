@@ -1,3 +1,5 @@
+#pragma once
+
 enum class Kind {
   Pin,
   Sou,
@@ -36,24 +38,22 @@ enum class WindKind : unsigned short {
 };
 
 struct Tile {
-  Tile();
-  Tile(short value, Kind kind, SDL_FRect sprite);
-  inline bool operator==(const Tile& rhs) const;
+  Tile(unsigned short value, Kind kind)
+    :value(value), kind(kind) {}
+
+  inline bool operator==(const Tile& rhs) const {
+    if (kind == Kind::Flower && rhs.kind == Kind::Flower)
+      return true;
+
+    if (kind == Kind::Season && rhs.kind == Kind::Season)
+      return true;
+
+    return kind == rhs.kind && value == rhs.value;
+  }
+
+  auto operator<=>(const Tile& rhs) const = default;
+
 
   unsigned short value;
   Kind kind;
-  SDL_FRect sprite;
 };
-
-Tile::Tile(short value, Kind kind, SDL_FRect sprite)
-  :value(value), kind(kind), sprite(sprite) {}
-
-inline bool Tile::operator==(const Tile& rhs) const {
-  if (kind == Kind::Flower && rhs.kind == Kind::Flower)
-    return true;
-
-  if (kind == Kind::Season && rhs.kind == Kind::Season)
-    return true;
-
-  return kind == rhs.kind && value == rhs.value;
-}
