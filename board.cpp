@@ -55,67 +55,71 @@ void Board::parse_layout(std::string path, std::vector<Tile>& deck) {
 
 bool Board::check_open(Position p) const {
   assert(tiles[p.z][p.y][p.x]);
-  auto origin = get_origin(p);
+  const auto [x, y, z]  = get_origin(p);
 
   // Check if anything is partially covering this tile
-  if (origin.z + 1 < layers()) {
-    const auto layer_above = tiles[origin.z + 1];
-    if (layer_above[origin.y][origin.x] ||
-	layer_above[origin.y][origin.x + 1] ||
-	layer_above[origin.y + 1][origin.x + 1] ||
-	layer_above[origin.y + 1][origin.x])
+  if (z + 1 < layers()) {
+    const auto layer_above = tiles[z + 1];
+    if (layer_above[y][x] ||
+	layer_above[y][x + 1] ||
+	layer_above[y + 1][x + 1] ||
+	layer_above[y + 1][x])
       return false;
   }
 
   // Check if neighbors are open
-  auto layer = tiles[p.z];
+  const auto& layer = tiles[p.z];
   const auto max_x = layer[0].size();
   const auto max_y = layer.size();
  
-  bool left_blocked = (origin.x > 0) &&
-    (layer[origin.y][origin.x - 1] ||
-     (origin.y < max_y && layer[origin.y + 1][origin.x - 1]));
+  bool left_blocked = (x > 0) &&
+    (layer[y][x - 1] ||
+     (y < max_y && layer[y + 1][x - 1]));
 
-  bool right_blocked = (origin.x + 2 < max_x) &&
-    (layer[origin.y][origin.x + 2] ||
-     (origin.y < max_y && layer[origin.y + 1][origin.x + 2]));
+  bool right_blocked = (x + 2 < max_x) &&
+    (layer[y][x + 2] ||
+     (y < max_y && layer[y + 1][x + 2]));
 
   return !left_blocked || !right_blocked;
 }
 
 Position Board::get_origin(Position p) const {
-  auto origin_x = p.x;
-  auto origin_y = p.y;
-  auto layer = tiles[p.z];
+  const auto [x, y, z] = p;
+  const auto& layer = tiles[z];
+  auto origin_x = x;
+  auto origin_y = y;
 
-  if (origin_x > 0 && layer[origin_y][origin_x - 1] == layer[p.y][p.x]) {
+  if (origin_x > 0 && layer[origin_y][origin_x - 1] == layer[y][x]) {
     origin_x -= 1;
   }
 
-  if (origin_y > 0 && layer[origin_y - 1][origin_x] == layer[p.y][p.x]) {
+  if (origin_y > 0 && layer[origin_y - 1][origin_x] == layer[y][x]) {
     origin_y -= 1;
   }
 
-  return Position{origin_x, origin_y, p.z};
+  return Position{origin_x, origin_y, z};
 }
 
-Tile* Board::get_tile(const Position p) {
+Tile* Board::tile(const Position p) {
   return tiles[p.z][p.y][p.x];
 }
 
 void Board::remove_tile(const Position p) {
-  auto origin = get_origin(p);
-  tiles[origin.z][origin.y][origin.x] = nullptr;
-  tiles[origin.z][origin.y][origin.x + 1] = nullptr;
-  tiles[origin.z][origin.y + 1][origin.x] = nullptr;
-  tiles[origin.z][origin.y + 1][origin.x + 1] = nullptr;
+  const auto [x, y, z] = get_origin(p);
+  tiles[z][y][x] = nullptr;
+  tiles[z][y][x + 1] = nullptr;
+  tiles[z][y + 1][x] = nullptr;
+  tiles[z][y + 1][x + 1] = nullptr;
 }
 
+// Restore a tile
+// PRECONDITION: the position must be the origin of the tile
 void Board::restore_tile(Tile *t, Position origin) {
-  tiles[origin.z][origin.y][origin.x] = t;
-  tiles[origin.z][origin.y][origin.x + 1] = t;
-  tiles[origin.z][origin.y + 1][origin.x] = t;
-  tiles[origin.z][origin.y + 1][origin.x + 1] = t;
+  const auto [x, y, z] = origin;
+  tiles[z][y][x] = t;
+  tiles[z][y][x + 1] = t;
+  tiles[z][y + 1][x] = t;
+  tiles[z][y + 1][x + 1] = t;
 }
 
 bool Board::check_equal(const Position lhs, const Position rhs) const {
@@ -135,9 +139,9 @@ std::size_t Board::layers() const {
 }
 
 std::size_t Board::length() const {
-  return tiles[0].size();
+  return tiles.front().size();
 }
 
 std::size_t Board::width() const {
-  return tiles[0][0].size();
+  return tiles.front().front().size();
 }

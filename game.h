@@ -17,10 +17,10 @@ using Point = std::tuple<T, T>;
 struct Game {
   std::optional<Position> selected_tile;
 
-  Game();
-  void draw_tiles(Graphics& g);
-  void draw_selection(Graphics &g);
-  void handle_click(Graphics& g, Point<float> click);
+  Game(Graphics& g);
+  void draw_tiles();
+  void draw_selection();
+  void handle_click(Point<float> click);
   void handle_undo();
   void handle_redo();
 private:
@@ -29,4 +29,5 @@ private:
   Board board;
   Deck deck;
   History history;
+  Graphics& graphics;
 };

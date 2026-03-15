@@ -19,8 +19,9 @@ struct Board {
   Board() = default;
   void init(std::string path, std::vector<Tile>& deck);
 
+  Tile* tile(const Position p);
+
   Position get_origin(Position p) const;
-  Tile* get_tile(const Position p);
   std::optional<Position> find_tile(std::size_t x, std::size_t y);
   void remove_tile(const Position p);
   void restore_tile(Tile *t, Position origin);

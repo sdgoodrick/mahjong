@@ -5,7 +5,9 @@
 #include <ranges>
 #include <set>
 
-Game::Game() {
+Game::Game(Graphics& graphics)
+  : graphics(graphics)
+{
   create_deck();
 
   std::random_device rd;
@@ -14,24 +16,24 @@ Game::Game() {
   board.init("../layouts/turtle", deck);
 }
 
-void Game::draw_tiles(Graphics& g) {
+void Game::draw_tiles() {
   std::set<Tile*> seen;
   for (std::size_t z = 0; z < board.layers(); ++z) {
     for (std::size_t y = 0; y < board.length(); ++y) {
       for (std::size_t x = 0; x < board.width(); ++x) {
-	Tile* t = board.get_tile({x, y, z});
+	Tile* t = board.tile({x, y, z});
 	if (t != nullptr && !seen.contains(t)) {
 	  seen.insert(t);
-	  g.draw_tile(*t, {x, y, z});
+	  graphics.draw_tile(*t, {x, y, z});
 	}
       }
     }
   }
 }
 
-void Game::draw_selection(Graphics& g) {
+void Game::draw_selection() {
   if (board.selected)
-    g.draw_selection(board.selected.value());
+    graphics.draw_selection(*board.selected);
 }
 
 void Game::create_deck() {
@@ -71,19 +73,18 @@ void Game::create_deck() {
   }
 }
 
-void Game::handle_click(Graphics& g, Point<float> click) {
+void Game::handle_click(Point<float> click) {
   const auto [mouse_x, mouse_y] = click;
 
   std::optional<Position> clicked_tile = std::nullopt;
-  for (int signed_z = board.layers() - 1; signed_z >= 0; --signed_z) {
-    auto z = static_cast<std::size_t>(signed_z);
-    const auto [grid_x, grid_y] = g.resolve_click(mouse_x, mouse_y, z);
+  for (std::size_t z = board.layers(); z-- > 0; ) {
+    const auto [grid_x, grid_y] = graphics.resolve_click(mouse_x, mouse_y, z);
 
     if (grid_y >= board.length() || grid_x >= board.width()) {
-      break;
+      continue;
     }
 
-    if (board.get_tile({grid_x, grid_y, z})) {
+    if (board.tile({grid_x, grid_y, z})) {
       clicked_tile = board.get_origin({grid_x, grid_y, z});
       break;
     }
@@ -97,10 +98,10 @@ void Game::handle_click(Graphics& g, Point<float> click) {
   if (board.selected && board.check_equal(*board.selected, *clicked_tile)) {
     auto a_pos = *clicked_tile;
     auto b_pos = *board.selected;
-    history.record(a_pos, board.get_tile(a_pos), b_pos, board.get_tile(b_pos));
+    history.record(a_pos, board.tile(a_pos), b_pos, board.tile(b_pos));
 
-    board.remove_tile(clicked_tile.value());
-    board.remove_tile(board.selected.value());
+    board.remove_tile(*clicked_tile);
+    board.remove_tile(*board.selected);
     board.selected = std::nullopt;
     return;
   }
@@ -113,7 +114,7 @@ void Game::handle_undo() {
   if (!point)
     return;
 
-  const auto [l, r] = point.value();
+  const auto [l, r] = *point;
   board.restore_tile(l.second, l.first);
   board.restore_tile(r.second, r.first);
 
@@ -125,7 +126,7 @@ void Game::handle_redo() {
   if (!point)
     return;
 
-  const auto [l, r] = point.value();
+  const auto [l, r] = *point;
   board.remove_tile(l.first);
   board.remove_tile(r.first);
 

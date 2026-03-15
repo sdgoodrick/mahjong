@@ -16,21 +16,21 @@
 #include "graphics.h"
 
 int main(int argc, char* argv[]) {
-  Graphics g;
-  if (!g.init())
+  Graphics graphics;
+  if (!graphics.init())
     return 1;
 
-  Game game;
+  Game game(graphics);
 
   SDL_Event e;
   bool quit = false;
 
   while (!quit) {
-    g.set_bg();
-    g.clear();
+    graphics.set_bg();
+    graphics.clear();
 
-    game.draw_tiles(g);
-    game.draw_selection(g);
+    game.draw_tiles();
+    game.draw_selection();
 
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_EVENT_QUIT) {
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
       } else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 	float mouse_x, mouse_y;
 	SDL_GetMouseState(&mouse_x, &mouse_y);
-	game.handle_click(g, {mouse_x, mouse_y});
+	game.handle_click({mouse_x, mouse_y});
       } else if (e.type == SDL_EVENT_KEY_DOWN) {
 	if (e.key.mod & SDL_KMOD_CTRL && e.key.scancode == SDL_SCANCODE_Z)
 	  game.handle_undo();
@@ -47,12 +47,10 @@ int main(int argc, char* argv[]) {
       }
     }
 	
-    g.update();
+    graphics.update();
   }
 
 
-  g.shutdown();
-  SDL_Quit();
-
+  graphics.shutdown();
   return 0;
 }
