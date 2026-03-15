@@ -5,11 +5,13 @@
 #include <iostream>
 #include <string_view>
 
-void Board::init(std::string path, std::vector<Tile>& deck) {
+using namespace std;
+
+void Board::init(string path, vector<Tile>& deck) {
   parse_layout(path, deck);
 }
 
-void Board::parse_layout(std::string path, std::vector<Tile>& deck) {
+void Board::parse_layout(string path, vector<Tile>& deck) {
   using namespace std;
 
   ifstream file{path};
@@ -126,22 +128,22 @@ bool Board::check_equal(const Position lhs, const Position rhs) const {
   return lhs != rhs && *tiles[lhs.z][lhs.y][lhs.x] == *tiles[rhs.z][rhs.y][rhs.x];
 }
 
-std::size_t Board::tile_width() const {
+size_t Board::tile_width() const {
     return 44;
   }
 
-std::size_t Board::tile_height() const {
+size_t Board::tile_height() const {
     return 60;
   }
 
-std::size_t Board::layers() const {
+size_t Board::layers() const {
   return tiles.size();
 }
 
-std::size_t Board::length() const {
+size_t Board::length() const {
   return tiles.front().size();
 }
 
-std::size_t Board::width() const {
+size_t Board::width() const {
   return tiles.front().front().size();
 }

@@ -2,9 +2,11 @@
 
 #include <iostream>
 
+using namespace std;
+
 void Graphics::draw_tile(const Tile& t, Position p) {
   if (!tiles.contains(t)) {
-    std::cerr << "unexpected tile: {" << static_cast<unsigned short>(t.kind) << ", " << t.value << "}" << std::endl;
+    cerr << "unexpected tile: {" << static_cast<unsigned short>(t.kind) << ", " << t.value << "}" << endl;
     return;
   }
 
@@ -76,14 +78,14 @@ bool Graphics::init() {
 
   win = SDL_CreateWindow("Mahjigg", 800, 600, 0);
   if (win == nullptr) {
-    std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+    cerr << "SDL_CreateWindow Error: " << SDL_GetError() << endl;
     SDL_Quit();
     return false;
   }
 
   ren = SDL_CreateRenderer(win, NULL);
   if (ren == nullptr) {
-    std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+    cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << endl;
     SDL_DestroyWindow(win);
     SDL_Quit();
     return false;
@@ -92,7 +94,7 @@ bool Graphics::init() {
   // We'll log this and move on. If you can run the game without VSync
   // on your windows98 workstation, go for it.
   if (!SDL_SetRenderVSync(ren, SDL_RENDERER_VSYNC_ADAPTIVE)) {
-    std::cerr << "Failed to set VSync: " << SDL_GetError() << std::endl;
+    cerr << "Failed to set VSync: " << SDL_GetError() << endl;
   }
 
   if (!load_media())
@@ -152,13 +154,13 @@ float Graphics::tile_height() const {
   return cfg.tile_logical_h;
 }
 
-std::pair<std::size_t, std::size_t> Graphics::resolve_click(float mouse_x, float mouse_y, std::size_t z) const {
+pair<size_t, size_t> Graphics::resolve_click(float mouse_x, float mouse_y, size_t z) const {
   float z_adjusted_x = mouse_x + (z * cfg.z_offset);
   float z_adjusted_y = mouse_y + (z * cfg.z_offset);
 
-  auto point = std::make_pair(
-        static_cast<std::size_t>(z_adjusted_x / (cfg.tile_logical_w / 2)),
-	static_cast<std::size_t>(z_adjusted_y / (cfg.tile_logical_h / 2))
+  auto point = make_pair(
+        static_cast<size_t>(z_adjusted_x / (cfg.tile_logical_w / 2)),
+	static_cast<size_t>(z_adjusted_y / (cfg.tile_logical_h / 2))
   );
 
   return point;

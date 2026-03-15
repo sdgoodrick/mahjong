@@ -1,18 +1,4 @@
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
-#include <iostream>
-#include <array>
-#include <algorithm>
-#include <random>
-#include <ranges>
-#include <vector>
-#include <set>
-#include <tuple>
-#include <map>
-
-#include "board.h"
 #include "game.h"
-
 #include "graphics.h"
 
 int main(int argc, char* argv[]) {
