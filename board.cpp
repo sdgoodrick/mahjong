@@ -57,28 +57,30 @@ bool Board::check_open(Position p) const {
   assert(tiles[p.z][p.y][p.x]);
   auto origin = get_origin(p);
 
+  // Check if anything is partially covering this tile
+  if (origin.z + 1 < layers()) {
+    const auto layer_above = tiles[origin.z + 1];
+    if (layer_above[origin.y][origin.x] ||
+	layer_above[origin.y][origin.x + 1] ||
+	layer_above[origin.y + 1][origin.x + 1] ||
+	layer_above[origin.y + 1][origin.x])
+      return false;
+  }
+
+  // Check if neighbors are open
   auto layer = tiles[p.z];
   const auto max_x = layer[0].size();
   const auto max_y = layer.size();
-  // Left-most edge
-  if (origin.x == 0)
-    return true;
-
-  bool top_left_open = layer[origin.y][origin.x - 1] == nullptr;
-  bool bottom_left_open = (origin.y + 1 >= max_y) || layer[origin.y+1][origin.x - 1] == nullptr;
-  if (top_left_open && bottom_left_open)
-    return true;
-
-  // Right-most edge
-  if (origin.x + 2 >= max_x)
-    return true;
-
-  bool top_right_open = layer[origin.y][origin.x + 2] == nullptr;
-  bool bottom_right_open = (origin.y + 1 >= max_y) || layer[origin.y + 1][origin.x + 2] == nullptr;
-  if (top_right_open && bottom_right_open)
-    return true;
  
-  return false;
+  bool left_blocked = (origin.x > 0) &&
+    (layer[origin.y][origin.x - 1] ||
+     (origin.y < max_y && layer[origin.y + 1][origin.x - 1]));
+
+  bool right_blocked = (origin.x + 2 < max_x) &&
+    (layer[origin.y][origin.x + 2] ||
+     (origin.y < max_y && layer[origin.y + 1][origin.x + 2]));
+
+  return !left_blocked || !right_blocked;
 }
 
 Position Board::get_origin(Position p) const {
@@ -103,6 +105,13 @@ void Board::remove_tile(const Position p) {
   tiles[origin.z][origin.y][origin.x + 1] = nullptr;
   tiles[origin.z][origin.y + 1][origin.x] = nullptr;
   tiles[origin.z][origin.y + 1][origin.x + 1] = nullptr;
+}
+
+void Board::restore_tile(Tile *t, Position origin) {
+  tiles[origin.z][origin.y][origin.x] = t;
+  tiles[origin.z][origin.y][origin.x + 1] = t;
+  tiles[origin.z][origin.y + 1][origin.x] = t;
+  tiles[origin.z][origin.y + 1][origin.x + 1] = t;
 }
 
 bool Board::check_equal(const Position lhs, const Position rhs) const {

@@ -96,6 +96,9 @@ void Game::handle_click(Graphics& g, Point<float> click) {
   }
 
   if (board.selected && board.check_equal(*board.selected, *clicked_tile)) {
+    matches.emplace(std::make_pair(clicked_tile.value(), board.tiles[clicked_tile->z][clicked_tile->y][clicked_tile->x]),
+		    std::make_pair(board.selected.value(),
+				   board.tiles[board.selected->z][board.selected->y][board.selected->x]));
     board.remove_tile(clicked_tile.value());
     board.remove_tile(board.selected.value());
     board.selected = std::nullopt;
@@ -103,4 +106,16 @@ void Game::handle_click(Graphics& g, Point<float> click) {
   }
 
   board.selected = *clicked_tile;
+}
+
+void Game::handle_undo() {
+  if (matches.empty())
+    return;
+
+  const auto [l, r] = matches.top();
+  board.restore_tile(l.second, l.first);
+  board.restore_tile(r.second, r.first);
+
+  board.selected = std::nullopt;
+  matches.pop();
 }

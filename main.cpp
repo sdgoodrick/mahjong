@@ -35,10 +35,13 @@ int main(int argc, char* argv[]) {
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_EVENT_QUIT) {
 	quit = true;
-      } else if (e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+      } else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 	float mouse_x, mouse_y;
 	SDL_GetMouseState(&mouse_x, &mouse_y);
 	game.handle_click(g, {mouse_x, mouse_y});
+      } else if (e.type == SDL_EVENT_KEY_DOWN) {
+	if (e.key.mod & SDL_KMOD_CTRL && e.key.scancode == SDL_SCANCODE_Z)
+	  game.handle_undo();
       }
     }
 	

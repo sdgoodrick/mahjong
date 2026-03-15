@@ -31,6 +31,8 @@ struct Board {
   bool check_open(Position p) const;
   bool check_equal(const Position lhs, const Position rhs) const;
   std::size_t layers() const;
+  void remove_tile();
+  void restore_tile(Tile *t, Position origin);
   
   // A tile is represented by a 2x2 quadrant of the tileset. A tile at (x, y) is
   // indexed in `tiles` at `tiles[layer][y / (tile_h / 2)][x / (tile_w / 2)]`.
