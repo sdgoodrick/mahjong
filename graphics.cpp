@@ -52,6 +52,23 @@ void Graphics::draw_selection(Position pos) {
     draw_rect(&selection, cfg.selection_thickness);
 }
 
+void Graphics::draw_hint(Position a, Position b) {
+    const auto w = cfg.tile_logical_w;
+    const auto h = cfg.tile_logical_h;
+
+    const auto draw_ax = a.x * (w / 2) - (a.z * cfg.z_offset) + cfg.x_padding;
+    const auto draw_ay = a.y * (h / 2) - (a.z * cfg.z_offset) + cfg.y_padding;
+    const auto draw_bx = b.x * (w / 2) - (b.z * cfg.z_offset) + cfg.x_padding;
+    const auto draw_by = b.y * (h / 2) - (b.z * cfg.z_offset) + cfg.y_padding;
+
+    const auto [red, green, blue] = cfg.hint_color;
+    SDL_SetRenderDrawColor(ren, red, green, blue, 255);
+    SDL_FRect hint_a = {draw_ax, draw_ay, w, h};
+    SDL_FRect hint_b = {draw_bx, draw_by, w, h};
+    draw_rect(&hint_a, cfg.hint_thickness);
+    draw_rect(&hint_b, cfg.hint_thickness);
+}
+
 void Graphics::draw_rect(const SDL_FRect* rect, float thickness) {
   SDL_FRect top = { rect->x, rect->y, rect->w, thickness };
   SDL_RenderFillRect(ren, &top);

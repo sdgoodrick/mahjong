@@ -17,16 +17,21 @@ struct Game {
   Game(Graphics& g);
   void draw_tiles();
   void draw_selection();
+  void draw_hint();
   void handle_click(Point<float> click);
   void handle_undo();
   void handle_redo();
+  void handle_hint();
+  void set_time(uint64_t t);
 
-  void update_matches();
   std::size_t count_matches() {
     return available_matches.size();
   }
 private:
   void create_deck();
+  void update_matches();
+  std::optional<Match> get_hint();
+  std::optional<Match> current_hint;
 
   Board board;
   Deck deck;
@@ -35,4 +40,7 @@ private:
 
   std::vector<Match> available_matches;
   std::size_t hint_cursor = 0;
+
+  uint64_t current_time = 0;
+  uint64_t hint_start_time = 0;
 };

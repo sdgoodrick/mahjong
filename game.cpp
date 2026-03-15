@@ -14,6 +14,7 @@ Game::Game(Graphics& graphics)
   mt19937 g(rd());
   ranges::shuffle(deck, g);
   board.init("../layouts/turtle", deck);
+  update_matches();
 }
 
 void Game::draw_tiles() {
@@ -36,6 +37,19 @@ void Game::draw_tiles() {
 void Game::draw_selection() {
   if (board.selected)
     graphics.draw_selection(*board.selected);
+}
+
+void Game::draw_hint() {
+  if (current_hint) {
+    auto ticks = current_time - hint_start_time;
+
+    if (ticks < 400 || (ticks > 800 && ticks < 1200) || ticks > 1600)
+      graphics.draw_hint(current_hint->a.first, current_hint->b.first);
+    if (ticks >= 2000) {
+      current_hint = nullopt;
+      hint_start_time = 0;
+    }
+  }
 }
 
 void Game::create_deck() {
@@ -168,4 +182,22 @@ void Game::update_matches() {
 	available_matches.emplace_back(open_tiles[i], t, open_tiles[j], u);
     }
   }
+}
+
+void Game::handle_hint() {
+  current_hint = get_hint();
+  hint_start_time = current_time;
+}
+
+optional<Match> Game::get_hint() {
+  if (available_matches.empty())
+    return nullopt;
+
+
+  hint_cursor %= available_matches.size();
+  return available_matches[hint_cursor++];
+}
+
+void Game::set_time(uint64_t t) {
+  current_time = t;
 }

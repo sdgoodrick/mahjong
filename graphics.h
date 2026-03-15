@@ -34,9 +34,11 @@ struct GraphicsConfig {
 
   // The size of the lines on the cursor
   const float selection_thickness = 3.0f;
+  const float hint_thickness = 4.0f;
 
   const Color bg_color = {34, 139, 34};
   const Color selection_color = {70, 130, 180};
+  const Color hint_color = {245, 222, 130};
 
   const float screen_width = 800;
   const float screen_height = 600;
@@ -47,6 +49,7 @@ struct Graphics {
   void shutdown();
   void draw_tile(const Tile& t, Position p);
   void draw_selection(Position pos);
+  void draw_hint(Position a, Position b);
   void render(Texture& tex, float x, float y, SDL_FRect* clip);
   void set_bg();
   void clear();
