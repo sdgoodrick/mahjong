@@ -96,9 +96,11 @@ void Game::handle_click(Graphics& g, Point<float> click) {
   }
 
   if (board.selected && board.check_equal(*board.selected, *clicked_tile)) {
-    matches.emplace(std::make_pair(clicked_tile.value(), board.tiles[clicked_tile->z][clicked_tile->y][clicked_tile->x]),
-		    std::make_pair(board.selected.value(),
-				   board.tiles[board.selected->z][board.selected->y][board.selected->x]));
+    history.matches.resize(history.cursor);
+    history.matches.emplace_back(std::make_pair(clicked_tile.value(), board.tiles[clicked_tile->z][clicked_tile->y][clicked_tile->x]),
+				 std::make_pair(board.selected.value(),
+						board.tiles[board.selected->z][board.selected->y][board.selected->x]));
+    history.cursor++;
     board.remove_tile(clicked_tile.value());
     board.remove_tile(board.selected.value());
     board.selected = std::nullopt;
@@ -109,13 +111,26 @@ void Game::handle_click(Graphics& g, Point<float> click) {
 }
 
 void Game::handle_undo() {
-  if (matches.empty())
+  if (history.matches.empty())
     return;
 
-  const auto [l, r] = matches.top();
+  const auto [l, r] = history.matches[history.cursor - 1];
+  history.cursor--;
   board.restore_tile(l.second, l.first);
   board.restore_tile(r.second, r.first);
 
   board.selected = std::nullopt;
-  matches.pop();
 }
+
+void Game::handle_redo() {
+  if (history.matches.empty() || history.cursor >= history.matches.size())
+    return;
+
+  const auto [l, r] = history.matches[history.cursor];
+  history.cursor++;
+  board.remove_tile(l.first);
+  board.remove_tile(r.first);
+
+  board.selected = std::nullopt;
+}
+

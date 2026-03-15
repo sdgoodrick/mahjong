@@ -42,6 +42,8 @@ int main(int argc, char* argv[]) {
       } else if (e.type == SDL_EVENT_KEY_DOWN) {
 	if (e.key.mod & SDL_KMOD_CTRL && e.key.scancode == SDL_SCANCODE_Z)
 	  game.handle_undo();
+	else if (e.key.mod & SDL_KMOD_CTRL && e.key.scancode == SDL_SCANCODE_Y)
+	  game.handle_redo();
       }
     }
 	
