@@ -11,9 +11,6 @@
 
 using Deck = std::vector<Tile>;
 
-template<typename T>
-using Point = std::tuple<T, T>;
-
 struct Game {
   std::optional<Position> selected_tile;
 

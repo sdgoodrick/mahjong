@@ -10,8 +10,8 @@ void Graphics::draw_tile(const Tile& t, Position p) {
     return;
   }
 
-  auto draw_x = p.x * (cfg.tile_logical_w / 2) - (p.z * cfg.z_offset);
-  auto draw_y = p.y * (cfg.tile_logical_h / 2) - (p.z * cfg.z_offset);
+  auto draw_x = (p.x * (cfg.tile_logical_w / 2) - (p.z * cfg.z_offset)) + cfg.x_padding;
+  auto draw_y = (p.y * (cfg.tile_logical_h / 2) - (p.z * cfg.z_offset)) + cfg.y_padding;
 
   auto sprite = tiles.find(t)->second;
   render(tileset, draw_x, draw_y, &sprite);
@@ -43,8 +43,8 @@ void Graphics::update() {
 void Graphics::draw_selection(Position pos) {
     auto w = cfg.tile_logical_w;
     auto h = cfg.tile_logical_h;
-    auto draw_x = pos.x * (w / 2) - (pos.z * cfg.z_offset);
-    auto draw_y = pos.y * (h / 2) - (pos.z * cfg.z_offset);
+    auto draw_x = pos.x * (w / 2) - (pos.z * cfg.z_offset) + cfg.x_padding;
+    auto draw_y = pos.y * (h / 2) - (pos.z * cfg.z_offset) + cfg.y_padding;
 
     const auto [r, g, b] = cfg.selection_color;
     SDL_SetRenderDrawColor(ren, r, g, b, 255);
@@ -76,7 +76,7 @@ void Graphics::draw_rect(const SDL_FRect* rect, float thickness) {
 bool Graphics::init() {
   SDL_Init(SDL_INIT_VIDEO);
 
-  win = SDL_CreateWindow("Mahjigg", 800, 600, 0);
+  win = SDL_CreateWindow("Mahjigg", cfg.screen_width, cfg.screen_height, 0);
   if (win == nullptr) {
     cerr << "SDL_CreateWindow Error: " << SDL_GetError() << endl;
     SDL_Quit();
@@ -155,8 +155,8 @@ float Graphics::tile_height() const {
 }
 
 pair<size_t, size_t> Graphics::resolve_click(float mouse_x, float mouse_y, size_t z) const {
-  float z_adjusted_x = mouse_x + (z * cfg.z_offset);
-  float z_adjusted_y = mouse_y + (z * cfg.z_offset);
+  float z_adjusted_x = mouse_x + (z * cfg.z_offset) - cfg.x_padding;
+  float z_adjusted_y = mouse_y + (z * cfg.z_offset) - cfg.y_padding;
 
   auto point = make_pair(
         static_cast<size_t>(z_adjusted_x / (cfg.tile_logical_w / 2)),

@@ -25,6 +25,10 @@ struct GraphicsConfig {
   // The shift up & left used per z layer to give illusion of depth
   const float z_offset = 3.0f;
 
+  // Space between the tiles and the window border, in pixels
+  const float x_padding = 50.0f;
+  const float  y_padding = 50.0f;
+
   // The size of spaces in the tileset spritesheet
   const float sheet_spacing = 64.0f;
 
@@ -33,6 +37,9 @@ struct GraphicsConfig {
 
   const Color bg_color = {34, 139, 34};
   const Color selection_color = {70, 130, 180};
+
+  const float screen_width = 800;
+  const float screen_height = 600;
 };
 
 struct Graphics {
@@ -44,6 +51,10 @@ struct Graphics {
   void set_bg();
   void clear();
   void update();
+
+  Point<std::size_t> padding() const {
+    return {cfg.x_padding, cfg.y_padding};
+  };
 
   ~Graphics();
 
