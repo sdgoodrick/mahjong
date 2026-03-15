@@ -52,10 +52,6 @@ struct Graphics {
   void clear();
   void update();
 
-  Point<std::size_t> padding() const {
-    return {cfg.x_padding, cfg.y_padding};
-  };
-
   ~Graphics();
 
   std::pair<std::size_t, std::size_t> resolve_click(float mouse_x, float mouse_y, std::size_t z) const;
