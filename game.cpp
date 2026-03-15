@@ -17,9 +17,9 @@ Game::Game() {
 void Game::draw_tiles(Graphics& g) {
   std::set<Tile*> seen;
   for (std::size_t z = 0; z < board.layers(); ++z) {
-    for (std::size_t y = 0; y < board.tiles[z].size(); ++y) {
-      for (std::size_t x = 0; x < board.tiles[z][y].size(); ++x) {
-	Tile* t = board.tiles[z][y][x];
+    for (std::size_t y = 0; y < board.length(); ++y) {
+      for (std::size_t x = 0; x < board.width(); ++x) {
+	Tile* t = board.get_tile({x, y, z});
 	if (t != nullptr && !seen.contains(t)) {
 	  seen.insert(t);
 	  g.draw_tile(*t, {x, y, z});
@@ -79,12 +79,11 @@ void Game::handle_click(Graphics& g, Point<float> click) {
     auto z = static_cast<std::size_t>(signed_z);
     const auto [grid_x, grid_y] = g.resolve_click(mouse_x, mouse_y, z);
 
-    if (grid_y >= board.tiles[0].size() ||
-	grid_x >= board.tiles[0][0].size()) {
+    if (grid_y >= board.length() || grid_x >= board.width()) {
       break;
     }
 
-    if (board.tiles[z][grid_y][grid_x]) {
+    if (board.get_tile({grid_x, grid_y, z})) {
       clicked_tile = board.get_origin({grid_x, grid_y, z});
       break;
     }
@@ -96,11 +95,10 @@ void Game::handle_click(Graphics& g, Point<float> click) {
   }
 
   if (board.selected && board.check_equal(*board.selected, *clicked_tile)) {
-    history.matches.resize(history.cursor);
-    history.matches.emplace_back(std::make_pair(clicked_tile.value(), board.tiles[clicked_tile->z][clicked_tile->y][clicked_tile->x]),
-				 std::make_pair(board.selected.value(),
-						board.tiles[board.selected->z][board.selected->y][board.selected->x]));
-    history.cursor++;
+    auto a_pos = *clicked_tile;
+    auto b_pos = *board.selected;
+    history.record(a_pos, board.get_tile(a_pos), b_pos, board.get_tile(b_pos));
+
     board.remove_tile(clicked_tile.value());
     board.remove_tile(board.selected.value());
     board.selected = std::nullopt;
@@ -111,11 +109,11 @@ void Game::handle_click(Graphics& g, Point<float> click) {
 }
 
 void Game::handle_undo() {
-  if (history.matches.empty())
+  auto point = history.rewind();
+  if (!point)
     return;
 
-  const auto [l, r] = history.matches[history.cursor - 1];
-  history.cursor--;
+  const auto [l, r] = point.value();
   board.restore_tile(l.second, l.first);
   board.restore_tile(r.second, r.first);
 
@@ -123,14 +121,34 @@ void Game::handle_undo() {
 }
 
 void Game::handle_redo() {
-  if (history.matches.empty() || history.cursor >= history.matches.size())
+  const auto point = history.restore();
+  if (!point)
     return;
 
-  const auto [l, r] = history.matches[history.cursor];
-  history.cursor++;
+  const auto [l, r] = point.value();
   board.remove_tile(l.first);
   board.remove_tile(r.first);
 
   board.selected = std::nullopt;
 }
 
+std::optional<Match> History::rewind() {
+   if (matches.empty() || cursor == 0)
+     return std::nullopt;
+
+   auto match = matches[--cursor];
+   return match;
+}
+
+std::optional<Match> History::restore() {
+  if (matches.empty() || cursor >= matches.size())
+    return std::nullopt;
+
+   auto match = matches[cursor++];
+   return match;
+}
+
+Match::Match(Position a_pos, Tile* a_tile, Position b_pos, Tile* b_tile)
+  : a(std::make_pair(a_pos, a_tile)),
+    b(std::make_pair(b_pos, b_tile))
+{}

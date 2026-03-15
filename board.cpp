@@ -99,6 +99,10 @@ Position Board::get_origin(Position p) const {
   return Position{origin_x, origin_y, p.z};
 }
 
+Tile* Board::get_tile(const Position p) {
+  return tiles[p.z][p.y][p.x];
+}
+
 void Board::remove_tile(const Position p) {
   auto origin = get_origin(p);
   tiles[origin.z][origin.y][origin.x] = nullptr;
@@ -118,6 +122,22 @@ bool Board::check_equal(const Position lhs, const Position rhs) const {
   return lhs != rhs && *tiles[lhs.z][lhs.y][lhs.x] == *tiles[rhs.z][rhs.y][rhs.x];
 }
 
+std::size_t Board::tile_width() const {
+    return 44;
+  }
+
+std::size_t Board::tile_height() const {
+    return 60;
+  }
+
 std::size_t Board::layers() const {
   return tiles.size();
+}
+
+std::size_t Board::length() const {
+  return tiles[0].size();
+}
+
+std::size_t Board::width() const {
+  return tiles[0][0].size();
 }

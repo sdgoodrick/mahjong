@@ -18,21 +18,22 @@ using Layer = std::array<std::array<T, 32>, 17>;
 struct Board {
   Board() = default;
   void init(std::string path, std::vector<Tile>& deck);
-  size_t tile_width() const {
-    return 44;
-  }
-  size_t tile_height() const {
-    return 60;
-  }
 
   Position get_origin(Position p) const;
+  Tile* get_tile(const Position p);
   std::optional<Position> find_tile(std::size_t x, std::size_t y);
   void remove_tile(const Position p);
+  void restore_tile(Tile *t, Position origin);
+
   bool check_open(Position p) const;
   bool check_equal(const Position lhs, const Position rhs) const;
+
+  // Logical information
+  size_t tile_width() const;
+  size_t tile_height() const;
   std::size_t layers() const;
-  void remove_tile();
-  void restore_tile(Tile *t, Position origin);
+  std::size_t length() const;
+  std::size_t width() const;
   
   // A tile is represented by a 2x2 quadrant of the tileset. A tile at (x, y) is
   // indexed in `tiles` at `tiles[layer][y / (tile_h / 2)][x / (tile_w / 2)]`.
