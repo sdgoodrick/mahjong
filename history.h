@@ -20,6 +20,7 @@ struct Match {
 struct History {
   std::optional<Match> rewind();
   std::optional<Match> restore();
+  std::size_t size() const;
 
   template<typename... Args>
   void record(Args&& ...args) {

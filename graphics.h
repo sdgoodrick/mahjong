@@ -5,11 +5,10 @@
 #include <map>
 #include <utility>
 
+#include "font.h"
 #include "texture.h"
 #include "tile.h"
 #include "util.h"
-
-using Color = std::size_t[3];
 
 // Holds various configuration settings for the graphics manager.
 // Currently hard-coded for convenience, but could be made configurable
@@ -39,9 +38,12 @@ struct GraphicsConfig {
   const Color bg_color = {34, 139, 34};
   const Color selection_color = {70, 130, 180};
   const Color hint_color = {245, 222, 130};
+  const Color text_color = {245, 222, 130};
 
   const float screen_width = 800;
   const float screen_height = 600;
+  const std::size_t font_size = 18;
+  const std::size_t text_padding = 20;
 };
 
 struct Graphics {
@@ -50,6 +52,7 @@ struct Graphics {
   void draw_tile(const Tile& t, Position p);
   void draw_selection(Position pos);
   void draw_hint(Position a, Position b);
+  void draw_text(const std::string& t, std::size_t x, std::size_t y);
   void render(Texture& tex, float x, float y, SDL_FRect* clip);
   void set_bg();
   void clear();
@@ -61,6 +64,8 @@ struct Graphics {
 
   float tile_width() const;
   float tile_height() const;
+  std::size_t screen_width() const;
+  std::size_t screen_height() const;
 
 private:
   bool load_media();
@@ -72,6 +77,7 @@ private:
 
   SDL_Renderer* ren;
   SDL_Window* win;
+  Font text;
   Texture tileset;
   GraphicsConfig cfg;
 };

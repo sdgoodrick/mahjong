@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <algorithm>
+#include <format>
 #include <random>
 
 using namespace std;
@@ -32,6 +33,18 @@ void Game::draw_tiles() {
       }
     }
   }
+}
+
+void Game::draw_hud() {  
+  string hud;  
+  if (auto m = count_matches(); m)
+    hud = format("matches left: {}", m);
+  else if (count_tiles())
+    hud = "game over: no matches left";
+  else
+    hud = "you win!";
+
+  graphics.draw_text(hud, graphics.screen_width(), graphics.screen_height());
 }
 
 void Game::draw_selection() {
@@ -200,4 +213,12 @@ optional<Match> Game::get_hint() {
 
 void Game::set_time(uint64_t t) {
   current_time = t;
+}
+
+std::size_t Game::count_matches() {
+  return available_matches.size();
+}
+
+std::size_t Game::count_tiles() {
+  return board.max_tiles() - history.size();
 }

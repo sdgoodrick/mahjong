@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <tuple>
+
+using Color = uint8_t[3];
 
 template<typename T>
 using Point = std::tuple<T, T>;

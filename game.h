@@ -16,6 +16,7 @@ struct Game {
 
   Game(Graphics& g);
   void draw_tiles();
+  void draw_hud();
   void draw_selection();
   void draw_hint();
   void handle_click(Point<float> click);
@@ -24,9 +25,8 @@ struct Game {
   void handle_hint();
   void set_time(uint64_t t);
 
-  std::size_t count_matches() {
-    return available_matches.size();
-  }
+  std::size_t count_matches();
+  std::size_t count_tiles();
 private:
   void create_deck();
   void update_matches();

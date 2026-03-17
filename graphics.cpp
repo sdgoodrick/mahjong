@@ -69,6 +69,14 @@ void Graphics::draw_hint(Position a, Position b) {
     draw_rect(&hint_b, cfg.hint_thickness);
 }
 
+void Graphics::draw_text(const std::string& t, size_t x, size_t y) {
+  auto tex = text.render(ren, t, cfg.text_color);
+  render(tex,
+	 x - tex.width() - cfg.text_padding,
+	 y - tex.height() - cfg.text_padding,
+	 nullptr);
+}
+
 void Graphics::draw_rect(const SDL_FRect* rect, float thickness) {
   SDL_FRect top = { rect->x, rect->y, rect->w, thickness };
   SDL_RenderFillRect(ren, &top);
@@ -112,6 +120,16 @@ bool Graphics::init() {
   // on your windows98 workstation, go for it.
   if (!SDL_SetRenderVSync(ren, SDL_RENDERER_VSYNC_ADAPTIVE)) {
     cerr << "Failed to set VSync: " << SDL_GetError() << endl;
+  }
+
+  if (!TTF_Init()) {
+    cerr << "failed to initialize SDL_ttf: " << SDL_GetError() << endl;
+    return false;
+  }
+
+  if (!text.open("../assets/NotoSerif-VariableFont_wdth,wght.ttf", cfg.font_size)) {
+    cerr << "failed to load font: " << SDL_GetError() << endl;
+    return false;
   }
 
   if (!load_media())
@@ -171,6 +189,14 @@ float Graphics::tile_height() const {
   return cfg.tile_logical_h;
 }
 
+size_t Graphics::screen_width() const {
+  return cfg.screen_width;
+}
+
+size_t Graphics::screen_height() const {
+  return cfg.screen_height;
+}
+
 pair<size_t, size_t> Graphics::resolve_click(float mouse_x, float mouse_y, size_t z) const {
   float z_adjusted_x = mouse_x + (z * cfg.z_offset) - cfg.x_padding;
   float z_adjusted_y = mouse_y + (z * cfg.z_offset) - cfg.y_padding;
@@ -187,6 +213,8 @@ void Graphics::shutdown() {
   tileset.destroy();
   SDL_DestroyRenderer(ren);
   SDL_DestroyWindow(win);
+  text.close();
+  TTF_Quit();
   SDL_Quit();
 }
 

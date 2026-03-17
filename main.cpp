@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     graphics.clear();
 
     game.draw_tiles();
-    std::cout << "\rmatches left: " << game.count_matches() << "\033[K" << std::flush;
+    game.draw_hud();
     game.draw_selection();
     game.draw_hint();
 

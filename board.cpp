@@ -24,7 +24,7 @@ void Board::parse_layout(string path, vector<Tile>& deck) {
   auto y = 0;
   auto z = 0;
   size_t max_y = 16;
-  size_t cursor = 0;
+  auto* cursor = &initial_tiles;
 
   string line;
   while (getline(file, line)) {
@@ -33,8 +33,8 @@ void Board::parse_layout(string path, vector<Tile>& deck) {
 
     for(char c : line) {
       if (c == '1') {
-	if (cursor < deck.size()) {
-	  Tile* t = &deck[cursor++];
+	if (*cursor < deck.size()) {
+	  Tile* t = &deck[(*cursor)++];
 	  tiles[z][y][x] = t;
 	  tiles[z][y+1][x] = t;
 	  tiles[z][y][x+1] = t;
@@ -146,4 +146,8 @@ size_t Board::length() const {
 
 size_t Board::width() const {
   return tiles.front().front().size();
+}
+
+size_t Board::max_tiles() const {
+  return initial_tiles;
 }

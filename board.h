@@ -32,6 +32,7 @@ struct Board {
   std::size_t layers() const;
   std::size_t length() const;
   std::size_t width() const;
+  std::size_t max_tiles() const;
   
   // A tile is represented by a 2x2 quadrant of the tileset. A tile at (x, y) is
   // indexed in `tiles` at `tiles[layer][y / (tile_h / 2)][x / (tile_w / 2)]`.
@@ -42,4 +43,7 @@ struct Board {
 private:
   TileSet<Tile*> tiles = {};
   void parse_layout(std::string path, std::vector<Tile>& deck);
+
+  // Count of tiles in the initialized board
+  std::size_t initial_tiles = 0;
 };
