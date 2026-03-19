@@ -11,10 +11,21 @@
 
 using Deck = std::vector<Tile>;
 
+enum class State {
+  Attract,
+  Main,
+  Settings,
+};
+
 struct Game {
   std::optional<Position> selected_tile;
 
   Game(Graphics& g);
+
+  // Attract state
+  void draw_button();
+
+  // Main state
   void draw_tiles();
   void draw_hud();
   void draw_selection();

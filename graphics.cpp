@@ -174,9 +174,11 @@ void Graphics::init_tileset() {
 }
 
 bool Graphics::load_media() {
-  if (!tileset.load_from_file(ren, "../assets/deck.png")) {
+  if (!tileset.load_from_file(ren, "../assets/deck.png"))
     return false;
-  };
+
+  if (!buttonset.load_from_file(ren, "../assets/buttons.png"))
+    return false;
 
   return true;
 }

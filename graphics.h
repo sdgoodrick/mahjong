@@ -5,6 +5,7 @@
 #include <map>
 #include <utility>
 
+#include "button.h"
 #include "font.h"
 #include "texture.h"
 #include "tile.h"
@@ -68,16 +69,24 @@ struct Graphics {
   std::size_t screen_height() const;
 
 private:
-  bool load_media();
-  void init_tileset();
   void draw_rect(const SDL_FRect* rect, float thickness);
 
-private:
-  std::map<Tile, SDL_FRect> tiles;
+  // Asset management
+  bool load_media();
+  void init_tileset();
+  void init_buttonset();
 
+private:
   SDL_Renderer* ren;
   SDL_Window* win;
   Font text;
-  Texture tileset;
   GraphicsConfig cfg;
+
+  // Assets
+  // TODO: move these to an asset manager if we get too many of them
+  Texture tileset;
+  std::map<Tile, SDL_FRect> tiles;
+
+  Texture buttonset;
+  std::map<ui::ButtonKind, ui::ButtonView> buttons;
 };
